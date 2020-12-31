@@ -28,10 +28,9 @@ func readTxtFile (name string) (lines []string) {
 	return
 }
 
-// Buses helper struct
+// Buses helper struct (big.Int for part 2)
 type line struct {
-	num     int64     // the number of the line
-	bigNum  *big.Int  // the same but in big Int format
+	bigNum  *big.Int  // the number of the line
 	ix      *big.Int  // the index in the input list
 	match   bool      // whether the line was matched (part 2 only)
 } 
@@ -62,7 +61,6 @@ func parseBuses(sheet []string) (now int64, buses []line) {
 		}
 		if err == nil {
 			buses = append(buses, line{ 
-				num:    int64(num),
 				bigNum: big.NewInt(int64(num)),
 				ix:     big.NewInt(ix),
 				match:  false })
@@ -79,10 +77,11 @@ func nextBus(now int64, buses []line) {
 	minLine := int64(-1)
 
 	for _,bus := range buses {
-		next := bus.num - (now % bus.num)
+		num  := bus.bigNum.Int64()
+		next := num - (now % num)
 		if next < minTime {
 			minTime = next
-			minLine = bus.num
+			minLine = num
 		}
 	}
 
