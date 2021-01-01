@@ -10,7 +10,7 @@ import (
 	"math/big"
 )
 
-// generic text file reader
+// generic text file reader (should be standard in go ...)
 func readTxtFile (name string) (lines []string) {
 	
 	file, err := os.Open(name)
