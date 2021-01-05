@@ -131,6 +131,8 @@ func parseCards(sheet []string) {
 	var ix int
 	var rw uint16
 	for _,line := range sheet {
+
+		// this is the header line with the id
 		if re.MatchString(line) {
 			cd = card{ id:atoi(re.FindStringSubmatch(line)[1]) }	
 			cl = [10]uint16{0,0,0,0,0,0,0,0,0,0}		
@@ -138,6 +140,8 @@ func parseCards(sheet []string) {
 			ix = 0		
 			continue
 		}
+
+		// a regular line
 		if len(line) > 0 {
 			tmp,_ := strconv.ParseUint(strings.ReplaceAll(strings.ReplaceAll(line,".","0"),"#","1"),2,10)
 			rw     = uint16(tmp)
@@ -148,6 +152,8 @@ func parseCards(sheet []string) {
 				rw >>= 1
 			}
 			ix++
+
+		// an empty line concludes a tile and maintains the edge map
 		} else {
 			cd.cols  = cl
 			cd.setEdge()
@@ -208,6 +214,7 @@ func arrangeCards(c int) [][]int {
 	// go through all remaining rows
 	for i := 0; i < mapsz-1; i++ {
 
+		// start with left edge
 		last := mp[len(mp)-1]
 		row  := []int{}
 		e := findCard(last[0], 0, 1)
@@ -247,16 +254,12 @@ func countMonsters(gmp [][]int) (num, tot int) {
 				rmap[k] = rmap[k] + fmt.Sprintf("%08b", cd.rows[k+1] & 0b0111111110 >> 1)
 			}		
 		}
-		for j := 0; j < 8; j++ {
-			gmap = append(gmap, rmap[j])
-		}
+		gmap = append(gmap, rmap...)
 	}
 
 	// map created, count monsters and rocks
-	// since I do not loop over the first and last line
-	// they are manually added
 	tmp := strings.ReplaceAll(gmap[0],"0","")
-	tot += len(tmp)
+	tot  = len(tmp)
 	for i := 1; i < len(gmap)-1; i++ {
 		for j := 0; j<len(gmap[i])-19; j++ {
 			t2, _ := strconv.ParseUint(gmap[i][j:j+20],2,20)  
