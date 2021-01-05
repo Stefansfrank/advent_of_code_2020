@@ -163,6 +163,34 @@ func parseCards(sheet []string) {
 	return
 }
 
+// finds the card that matches the top and left cards given
+// edge parameter means: 1 = left edge, 2 = top edge, 0 cards on left and top
+func findCard(top, left, edge int) int {
+	lEdge := cards[left].edge[0]
+	tEdge := cards[top].edge[1]
+	var rng []int
+	if edge == 1 {
+		rng = emp[tEdge]
+	} else {
+		rng = emp[lEdge]
+	}
+	for _, e := range rng {
+		if e != left && e != top {
+			for j := 0; j < 8; j++ {
+				//fmt.Println(e, edge == 1, cards[e].edgeUnique(2), cards[e].edge[3] == tEdge)
+				if (edge == 0 && cards[e].edge[2] == lEdge && cards[e].edge[3] == tEdge) ||
+				   (edge == 1 && cards[e].edgeUnique(2)    && cards[e].edge[3] == tEdge) ||
+				   (edge == 2 && cards[e].edge[2] == lEdge && cards[e].edgeUnique(3)) {
+					return e
+				} else {
+					cards[e].next()
+				}
+			}
+		}
+	}
+	return -1			
+}
+
 // arranging the tiles with a given starting left top corner
 // that must already be in the right orientation
 func arrangeCards(c int) [][]int {
@@ -170,26 +198,11 @@ func arrangeCards(c int) [][]int {
 	// start top row
 	mp  := [][]int{}
 	row := []int{ c }
-	curRight := cards[c].edge[0] // the current edge to be matched on the left
-	curRCrd  := c                // index of the tile that provides this edge
 
 	// finish top row
 	for i := 0; i < mapsz-1; i++ {
-		for _, e := range emp[curRight]	{
-			if e != curRCrd {
-				for j := 0; j < 8; j++ {
-					if cards[e].edge[2] == curRight && cards[e].edgeUnique(3) {
-						break
-					} else {
-						cards[e].next()
-					}
-				}	
-				curRCrd  = e
-				curRight = cards[e].edge[0]
-				row = append(row, e)	
-				break		
-			}
-		}			
+		e := findCard(0, row[i], 2)
+		row = append(row, e)	
 	} 
 	mp = append(mp, row)
 
@@ -198,45 +211,13 @@ func arrangeCards(c int) [][]int {
 
 		last := mp[len(mp)-1]
 		row  := []int{}
-		curBottom := cards[last[0]].edge[1] // the current edge to be matched on the top
-		curBCrd   := last[0]				// index of the tile that provides this edge
-		
-		// first the left edge
-		for _, e := range emp[curBottom] {
-			if e != curBCrd {
-				for j := 0; j < 8; j++ {
-					if cards[e].edge[3] == curBottom && cards[e].edgeUnique(2) {
-						break
-					} else {
-						cards[e].next()
-					}
-				}	
-				curRCrd   = e
-				curRight  = cards[e].edge[0]
-				row = append(row, e)	
-				break		
-			}
-		}	
+		e := findCard(last[0], 0, 1)
+		row = append(row, e)	
 
 		// then the remaining pieces
 		for j := 0; j < mapsz-1; j++ {
-			curBCrd   = last[j+1]
-			curBottom = cards[last[j+1]].edge[1]
-			for _, e := range emp[curBottom] {
-				if e != curBCrd && e != curRCrd {
-					for k := 0; k < 8; k++ {
-						if cards[e].edge[3] == curBottom && cards[e].edge[2] == curRight{
-							break
-						} else {
-							cards[e].next()
-						}
-					}	
-					curRCrd   = e
-					curRight  = cards[e].edge[0]
-					row = append(row, e)	
-					break		
-				}
-			}	
+			e := findCard(last[j+1], row[j], 0)
+			row = append(row, e)
 		}
 		mp = append(mp, row)
 	} 
@@ -263,7 +244,7 @@ func countMonsters(gmp [][]int) (num, tot int) {
 		for j := 0; j < mapsz; j++ {
 			cd := cards[gmp[i][j]]
 			for k := 0; k<8; k++ {
-				rmap[k] = rmap[k] + fmt.Sprintf("%08b", cd.rows[k+1] & 510 >> 1)
+				rmap[k] = rmap[k] + fmt.Sprintf("%08b", cd.rows[k+1] & 0b0111111110 >> 1)
 			}		
 		}
 		for j := 0; j < 8; j++ {
@@ -311,7 +292,7 @@ func main () {
 
 	// NOTE: after playing with the puzzle input, it becomes clear that each edge value is used in 2 tiles maximum so there is only one matching tile
 	// The input is also designed in a way that the corners have two unique edge values and edge pieces one unique edge value
-	// Otherwise the code below would not work 
+	// Otherwise the code below would not work and I would have to traverse through permutations
 
 	// Determine corner candidates
 	// look for tiles with 2 unique edges for corners 
@@ -330,16 +311,17 @@ func main () {
 	// Part 1 solution
 	idMul  := 1
 	for _,i := range crn {
-		fmt.Println("Corner:", cards[i].id)
+		fmt.Println("Corner ID:", cards[i].id)
 		idMul *= cards[i].id
 	}
 	fmt.Println("Product of corners: ", idMul)
 
 	// Part 2 solution
 	// I loop trough all 8 transformations of the big map to hunt for monsters
-	// by looping through all 4 corners as the top left starting point
+	// that is done by looping through all 4 corners as the top left starting point
 	// and using both orientations that one card can have in order to have the unique edges top and left
 	var gmp [][]int
+	fmt.Println("Map Variations:")
 	for _, c := range crn {
 		for i := 0; i < 8; i++ {
 			if cards[c].edgeUnique(2) && cards[c].edgeUnique(3) {
