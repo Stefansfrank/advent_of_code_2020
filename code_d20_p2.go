@@ -177,7 +177,6 @@ func findCard(top, left, edge int) int {
 	for _, e := range rng {
 		if e != left && e != top {
 			for j := 0; j < 8; j++ {
-				//fmt.Println(e, edge == 1, cards[e].edgeUnique(2), cards[e].edge[3] == tEdge)
 				if (edge == 0 && cards[e].edge[2] == lEdge && cards[e].edge[3] == tEdge) ||
 				   (edge == 1 && cards[e].edgeUnique(2)    && cards[e].edge[3] == tEdge) ||
 				   (edge == 2 && cards[e].edge[2] == lEdge && cards[e].edgeUnique(3)) {
@@ -226,8 +225,9 @@ func arrangeCards(c int) [][]int {
 }
 
 // matching and counting monsters and rocks
-// since the length of each line is longer than 64, I first build a map of strings using '0' and '1'
-// I then match back to the monster by converting substrings back into binary and use a simple binary AND mask
+// since the length of each line is longer than 64, I can't no longer deal with ints 
+// so I convert back to srings but stick with '0' and '1' so I can
+// match to the monster by converting substrings back into binary and use a simple binary AND mask
 func countMonsters(gmp [][]int) (num, tot int) {
 	//                   # 
 	// #    ##    ##    ###
@@ -284,10 +284,10 @@ func main () {
 
 	start  := time.Now()
 
-	emp     = make(map[uint16][]int) // the global edge map mapping an edge value to the indices of the tiles that can have that edge
-	crn    := []int{} 				 // a list of corner tiles listing their indices
+	emp     = make(map[uint16][]int) // the global edge map mapping an edge value to the indices of the tiles that have that edge
+	crn    := []int{} 				 // a list of corner tiles (listing their indices)
 	sheet  := readTxtFile("input_d20_p1.txt")
-	mapsz   = int(math.Sqrt(float64(len(sheet))/12)) // needed in order to quickly switch between test file and puzzle input
+	mapsz   = int(math.Sqrt(float64(len(sheet))/12)) // needed in order to quickly switch between test file and puzzle input by only changing the filename
 	          parseCards(sheet)
 
 	// NOTE: after playing with the puzzle input, it becomes clear that each edge value is used in 2 tiles maximum so there is only one matching tile
