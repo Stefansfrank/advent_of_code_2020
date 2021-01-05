@@ -30,10 +30,10 @@ type food struct {
 	ings []string
 	alls []string
 }
-var foods  []food
-var allMap  map[string][]int
-var ingMap  map[string][]int
-var ing2all map[string][]string // contains POTENTIAL allergens per ingredient
+var foods  []food               // a food line with a list of ingredients and allergens
+var allMap  map[string][]int    // mapping an allergen to all foods it occurs in (by index)
+var ingMap  map[string][]int    // mapping an ingredient to all foods it occurs in (by index)
+var ing2all map[string][]string // contains POTENTIAL allergens per ingredient bafter excluding impossible combinations 
 var all2ing map[string]string   // contains the actual link from allergen to ingredient
 
 // intersect two slices of strings
@@ -49,6 +49,7 @@ func intersect(a, b []string) (c []string) {
 	return
 }
 
+// parses the sheet creating foods, allMap, and ingMap
 func parseSheet(sheet []string) {
 
 	foods  = []food{}
@@ -72,6 +73,10 @@ func parseSheet(sheet []string) {
 	}
 }
 
+// detects allergen free ingredients by going through all foods per allergen
+// and determining ingredients that are in each food with that allergen.
+// These are added to the potential list. The ingredients that do not land on
+// this list are allergen free 
 func detectAllergenFree() (free []string, numFd int) {
 
 	// a list mapping ingredients to POTENTIAL allergens
@@ -79,6 +84,7 @@ func detectAllergenFree() (free []string, numFd int) {
 	free     = []string{}
 	ingLst  := []string{}
 
+	// build the list of otential allergens per ingredient
 	for all, fdIxLst := range allMap {
 		for i, fdIx := range fdIxLst {
 			if i == 0 {
@@ -92,6 +98,7 @@ func detectAllergenFree() (free []string, numFd int) {
 		}
 	}
 
+	// list ingredients that did not end up on that list
 	for ing, alls := range ingMap {
 		if len(ing2all[ing]) == 0 {
 			free = append(free, ing)
@@ -141,7 +148,7 @@ func main() {
 	// Part 2
 	mapAll2Ing()
 
-	// sort the keys
+	// sort the keys of the resulting map
 	keys := []string{}
 	for k := range all2ing {
 		keys = append(keys, k)
