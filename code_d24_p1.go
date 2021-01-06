@@ -60,7 +60,7 @@ func traverse(dirList [][]string) {
 		ky  := key(x,y)
 		col := len(tls[ky]) > 0
 		if col {
-			delete(tls, ky)
+			delete(tls, ky) // actively removing white tiles
 		} else {
 			tls[ky] = []int{x,y}
 		}
@@ -90,8 +90,10 @@ func iterate() {
 		for _, dl := range dlt {
 			num += len(tls[key(v[0] + dl[0], v[1] + dl[1])])
 		}
+		// since each existing tile has two coordinates and I count len([]int)
+		// black neighbors add 2 not 1 to the count so the conditions are doubled
 		if num == 0 || num > 4 {
-			delete(newTls, k)
+			delete(newTls, k) // actively removing white tiles from the map
 		} else if num == 4 {
 			newTls[k] = v
 		}
