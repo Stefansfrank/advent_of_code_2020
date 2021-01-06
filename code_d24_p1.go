@@ -19,7 +19,7 @@ func readTxtFile(name string) (lines []string) {
 	return
 }
 
-// global variables representing the floor, it's limits and a helper map
+// global variables representing the floor and a helper map
 var tls = map[string][]int{} // the key is a string based on x,y and the value is []int{x,y} 
 var dlt = map[string][]int{ "w":[]int{-1,0},"e":[]int{1,0},
 							"nw":[]int{0,-1},"ne":[]int{1,-1},
