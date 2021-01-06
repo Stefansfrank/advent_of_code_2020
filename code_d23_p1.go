@@ -5,11 +5,10 @@ import (
 	"time"
 )
 
-var chn [] int
-var chnLen int
+var chn  []int  // contains the cups with index = label of cup, value = label of next cup
+var chnLen int  // 9 for part 1 and 1,000,000 for part 2
 
 // Initializes the chain from the 9 digit seed given
-// len is 9 for part 1 and 1,000,000 for part 2
 // returns first value of seed as current
 func initChain(vals []int) int {
 	chn = make([]int, chnLen+1)
@@ -47,9 +46,9 @@ func move(cur int) int {
 	chn[cur]  = nxt4(cur) // link the 4th cup after to current to close remaining chain 
 
 	// search for valid destination
-	dvl := (cur + chnLen - 2) % chnLen + 1                    // equivalent to dvl = cur - 1 but cyclic
+	dvl := (cur + chnLen - 2) % chnLen + 1                    // equivalent to dvl = cur - 1 but cyclic and starting with 1
 	for dvl  == rem || dvl == nxt(rem) || dvl == nxt2(rem) {  // check whether destination is among the 3 parked cups
-		dvl = (dvl + chnLen - 2) % chnLen + 1                 // equivalent to dvl = dvl - 1 but cyclic
+		dvl = (dvl + chnLen - 2) % chnLen + 1                 // equivalent to dvl = dvl - 1 but cyclic and starting with 1
 	}
 
 	// break at destination and insert parked chain
