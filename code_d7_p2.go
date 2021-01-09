@@ -57,7 +57,7 @@ func parseRules(rules []string) (bags map[string]bagDef) {
 	return
 }
 
-// Part 1: start of the recursive match
+// Part 1: start the recursive match for each bag
 func countRecBagMatch(bags map[string]bagDef, pattern string) (count int) {
 	for _, bag := range bags {
 		if recursiveMatch(bags, bag.content, pattern) {
@@ -80,10 +80,10 @@ func recursiveMatch(bags map[string]bagDef, content []bagRef, pattern string) bo
 	return false
 }
 
-// Part 2: recursive depth first traversal of all contained bags
+// Part 2: recursivedepth first traversal of all contained bags
 func recursiveCount(bags map[string]bagDef, content []bagRef) (counter int) {	
 	for _, bagRef := range content {
-		counter += bagRef.amt
+		counter += bagRef.amt // the directly contained bags
 		counter += bagRef.amt*recursiveCount(bags, bags[bagRef.name].content) 
 	}
 	return counter
