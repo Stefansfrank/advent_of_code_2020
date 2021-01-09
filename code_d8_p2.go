@@ -9,16 +9,6 @@ import (
 	"strings"
 )
 
-type bagDef struct {
-	name    string
-	content []bagRef
-}
-
-type bagRef struct {
-	amt  int
-	name string
-}
-
 // no error handling ...
 func readTxtFile (name string) (lines []string) {	
 	file, _ := os.Open(name)
